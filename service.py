@@ -10,6 +10,7 @@ class StudentService:
         self.tree=AVLTree()
         self.queue=Queue()
         self.history=Stack()
+        self.hst=Back()
         
     def load_data(self):
         if not os.path.exists(DATA_FILE):
@@ -37,6 +38,7 @@ class StudentService:
         self.student_list.append(student)
         self.tree.insert(student)
         self.history.push(('add',student))
+        self.hst.push(('add',student))
         print(f"已新增學生：{student}")
         
     def update_student(self,name,grade):
@@ -49,6 +51,7 @@ class StudentService:
         student.grade=grade
         self.tree.insert(student)
         self.history.push(('update',student,old_grade))
+        self.hst.push(('update',student,old_grade))
         print(f"已更新學生 {name} 的成績為 {grade}") 
         
     def delete_student(self,name):
@@ -57,6 +60,7 @@ class StudentService:
                 self.student_list.remove(student)
                 self.tree.delete(student)
                 self.history.push(('delete',student))
+                self.hst.push(('delete',student))
                 print(f"已刪除學生：{student}")
                 return
         print("學生不存在！")
@@ -111,4 +115,27 @@ class StudentService:
         while not self.queue.is_empty():
             student=self.queue.dequeue()
             self.add_student(student.name,student.grade)
+
+    def backdo(self):
+        if self.hst.is_empty():
+            print("無操作可復原！")
+            return 
+        last_action=self.hst.pop()
+        if last_action[0]=='add':
+            student=last_action[1]
+            self.student_list.remove(student)
+            self.tree.delete(student)
+            print(f"已復原新增操作：刪除學生 {student}")
+        elif last_action[0]=='update':
+            student=last_action[1]
+            old_grade=last_action[2]
+            self.tree.delete(student)
+            student.grade=old_grade
+            self.tree.insert(student)
+            print(f"已復原更新操作：恢復學生 {student.name} 的成績為 {old_grade}")
+        elif last_action[0]=='delete':
+            student=last_action[1]
+            self.student_list.append(student)
+            self.tree.insert(student)
+            print(f"已復原刪除操作：恢復學生 {student}")
             
