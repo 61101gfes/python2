@@ -11,6 +11,37 @@ class Stack:
             return self.items.pop()
     def is_empty(self):
         return len(self.items)==0
+    
+class History:
+    def __init__(self):
+        self.action=None
+        self.link=None
+class Back:
+    def __init__(self):
+        self.node=None
+    def pop(self):
+        if self.node:
+            temp=self.node
+            self.node=self.node.link
+            return temp.action
+        return None
+    def push(self,acting):
+        temp=History()
+        temp.action=acting
+        if self.node:
+            temp.link=self.node
+            self.node=temp
+            print('加入已存在歷史紀錄',self.node.action)
+        else:
+            self.node=temp
+        print('加入歷史紀錄',self.node.action)
+
+    def is_empty(self):
+        if not self.node:
+            print('No history')
+            return True
+        return False
+        
 class Queue:
     def __init__(self):
         self.items=[]
